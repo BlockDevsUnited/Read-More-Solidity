@@ -12,6 +12,12 @@ Open up [index.html] in a browser.
 
 Also available in ["GitHub pages" for this repo](https://jakubner.github.io/Read-More-Solidity/).
 
+# Presentation Notes
+
+In the browser window you can press 'S' to see presentation notes.
+
+Only works if served from server: [GitHub pages](https://jakubner.github.io/Read-More-Solidity/) or "Advanced Start" below.
+
 # Advanced Start
 
 Clone repo.
@@ -19,5 +25,3 @@ Clone repo.
 `npm install` (might fail, old dependencies)
 
 `npm start` to start a server on *localhost:8000*.
-
-Now in the browser window you can press 'S' to see presentation notes.
