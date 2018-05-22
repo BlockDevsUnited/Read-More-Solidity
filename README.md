@@ -8,7 +8,9 @@ Pretty much an excuse to have some fun with Solidity puzzles.
 
 # Quick Start
 
-Open up `prezzo/index.html` in a browser.
+Open up [index.html] in a browser.
+
+Also available in ["GitHub pages" for this repo](https://jakubner.github.io/Read-More-Solidity/).
 
 # Advanced Start
 
