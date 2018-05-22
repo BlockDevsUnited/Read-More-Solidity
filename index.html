@@ -1732,12 +1732,12 @@
         </section>
         <section>
           <section>
-          	<aside class="notes">
-          		<h1>[The game...] /* click on link to show package.json */</h1>
+            <aside class="notes">
+              <h1>[The game...] /* click on link to show package.json */</h1>
               <h1>[..browser's console..] /* open up console */</h1>
-          	</aside>
-          	<h3>Ethernaut</h3>
-          	<p data-markdown>
+            </aside>
+            <h3>Ethernaut</h3>
+            <p data-markdown>
                 [Ethernaut](https://ethernaut.zeppelin.solutions/) is a collection of puzzles challenging coders to "crack" *Solidity* contracts.
 
                 https://ethernaut.zeppelin.solutions/
@@ -1749,25 +1749,711 @@
                 Either approach--[Remix](https://remix.ethereum.org/) or Ethernaut's JavaScript APIs--use Ethereum's web3.js injected by MetaMask.
 
                 The game takes place on the [Ropsten Ethereum test network](https://ropsten.etherscan.io/).
-          	</p>
+            </p>
           </section>
           <section>
-          	<aside class="notes">
-          		<h1>XXXXXX</h1>
-          	</aside>
-          	<h3>level 0 -- hello Ethernaut</h3>
-          	<div class="jjlcol2">
-          		<p data-markdown>
-          		</p>
-          	</div>
-          	<div class="jjlcol2">
-          		<p data-markdown>
-          		</p>
-          	</div>
-          	<div class="jjrcol2">
-          		<pre class="javascript"><code class="jjcode">
-          		</code></pre>
-          	</div>
+            <aside class="notes">
+              <h1>open up the console and use the 'help' method, look at the contract address, etc.</h1>
+              <h1>in console show that we can call each contract method(), as it is exported by ABI.
+            </aside>
+            <h3><a href="https://ethernaut.zeppelin.solutions/level/0xdf51a9e8ce57e7787e4a27dd19880fd7106b9a5c">level 0 -- hello Ethernaut</a></h3>
+            <div class="jjlcol2">
+              <p data-markdown>
+                [This level](https://ethernaut.zeppelin.solutions/level/0xdf51a9e8ce57e7787e4a27dd19880fd7106b9a5c) gets your feet wet using the Ethernaut JavaScript APIs as well as calling a contract on the blockchain via Truffle's JavaScript wrapper for the contract's methods.
+
+                We could follow the instructions and call all the contract's methods in order...
+
+                ```
+                await contract.info()
+                await contract.info1()
+                await contract.info2('hello')
+                await contract.infoNum()
+                await contract.info42()
+                await contract.theMethodName()
+                await contract.method7123949()
+                await contract.password()
+                await contract.authenticate('ethernaut0')
+                ```
+
+                ...but by looking at the source we see all the methods are just non state setting views to get you to call the 'authenticate' function at the end.
+              </p>
+            </div>
+            <div class="jjrcol2">
+              <pre class="javascript"><code class="jjcode">
+  pragma solidity ^0.4.18;
+
+  contract Instance {
+
+    string public password;
+    uint8 public infoNum = 42;
+    string public theMethodName = 'The method name is method7123949.';
+    bool private cleared = false;
+
+    // constructor
+    function Instance(string _password) public {
+      password = _password;
+    }
+
+    function info() public pure returns (string) {
+      return 'You will find what you need in info1().';
+    }
+
+    function info1() public pure returns (string) {
+      return 'Try info2(), but with "hello" as a parameter.';
+    }
+
+    function info2(string param) public pure returns (string) {
+      if(keccak256(param) == keccak256('hello')) {
+        return 'The property infoNum holds the number of the next info method to call.';
+      }
+      return 'Wrong parameter.';
+    }
+
+    function info42() public pure returns (string) {
+      return 'theMethodName is the name of the next method.';
+    }
+
+    function method7123949() public pure returns (string) {
+      return 'If you know the password, submit it to authenticate().';
+    }
+
+    function authenticate(string passkey) public {
+      if(keccak256(passkey) == keccak256(password)) {
+        cleared = true;
+      }
+    }
+
+    function getCleared() public view returns (bool) {
+      return cleared;
+    }
+  }
+              </code></pre>
+            </div>
+          </section>
+          <section>
+            <aside class="notes">
+              <h1>do the steps in Remix</h1>
+            </aside>
+            <h3><a href="https://ethernaut.zeppelin.solutions/level/0xdf51a9e8ce57e7787e4a27dd19880fd7106b9a5c">level 0 -- hello Ethernaut (continued)</a></h3>
+            <div class="jjlcol2">
+              <p data-markdown>
+                The JavaScript approach from the previous page would be closer to what you'd be doing from your DApp (if written in JavaScript).
+
+                However, for messing around with *Solidity*--including subsequent Ethernaut puzzles--it's more idiomatic to use [Remix](https://remix.ethereum.org/), the *Solidity* IDE.
+
+                To use [Remix](https://remix.ethereum.org/) first retrieve your level instance contract address, by:
+
+                1. clicking "Get New Instance" button on [the Ehternaut page for level 0](https://ethernaut.zeppelin.solutions/level/0xdf51a9e8ce57e7787e4a27dd19880fd7106b9a5c).
+                1. retrieving the contract address from the browser console:  it's logged, or run `contract`.
+
+                Then copy the contract source code into [Remix](https://remix.ethereum.org/) and load the contract at the instance address.
+
+                Call 'password' in remix and set 'authenticate'
+              </p>
+            </div>
+            <div class="jjrcol2">
+              <pre class="javascript"><code class="jjcode">
+  pragma solidity ^0.4.18;
+
+  contract Instance {
+
+    string public password;
+    uint8 public infoNum = 42;
+    string public theMethodName = 'The method name is method7123949.';
+    bool private cleared = false;
+
+    // constructor
+    function Instance(string _password) public {
+      password = _password;
+    }
+
+    function info() public pure returns (string) {
+      return 'You will find what you need in info1().';
+    }
+
+    function info1() public pure returns (string) {
+      return 'Try info2(), but with "hello" as a parameter.';
+    }
+
+    function info2(string param) public pure returns (string) {
+      if(keccak256(param) == keccak256('hello')) {
+        return 'The property infoNum holds the number of the next info method to call.';
+      }
+      return 'Wrong parameter.';
+    }
+
+    function info42() public pure returns (string) {
+      return 'theMethodName is the name of the next method.';
+    }
+
+    function method7123949() public pure returns (string) {
+      return 'If you know the password, submit it to authenticate().';
+    }
+
+    function authenticate(string passkey) public {
+      if(keccak256(passkey) == keccak256(password)) {
+        cleared = true;
+      }
+    }
+
+    function getCleared() public view returns (bool) {
+      return cleared;
+    }
+  }
+              </code></pre>
+            </div>
+          </section>
+          <section>
+            <aside class="notes">
+              <h1>XXXXXX</h1>
+            </aside>
+            <h3><a href="https://ethernaut.zeppelin.solutions/level/0x234094aac85628444a82dae0396c680974260be7">level 1 -- fallback</a></h3>
+            <div class="jjlcol2">
+              <p data-markdown>
+                Read through the [level instructions](https://ethernaut.zeppelin.solutions/level/0x234094aac85628444a82dae0396c680974260be7).
+
+                Get this level's contract instance:
+
+                1. click "Get New Instance" button on [the Ehternaut page for level 1](https://ethernaut.zeppelin.solutions/level/0x234094aac85628444a82dae0396c680974260be7).
+                1. retrieve the contract address from the browser console:  it's logged, or run `contract`.
+
+                Armed with the level instance contract address, start setting up the code in [Remix](https://remix.ethereum.org/).
+
+                To be continued...
+              </p>
+            </div>
+            <div class="jjrcol2">
+              <pre class="javascript"><code class="jjcode">
+  // Fallback.sol
+
+  pragma solidity ^0.4.18;
+
+  import './Ownable.sol';
+
+  contract Fallback is Ownable {
+
+    mapping(address => uint) public contributions;
+
+    function Fallback() public {
+      contributions[msg.sender] = 1000 * (1 ether);
+    }
+
+    function contribute() public payable {
+      require(msg.value < 0.001 ether);
+      contributions[msg.sender] += msg.value;
+      if(contributions[msg.sender] > contributions[owner]) {
+        owner = msg.sender;
+      }
+    }
+
+    function getContribution() public view returns (uint) {
+      return contributions[msg.sender];
+    }
+
+    function withdraw() public onlyOwner {
+      owner.transfer(this.balance);
+    }
+
+    function() payable public {
+      require(msg.value > 0 && contributions[msg.sender] > 0);
+      owner = msg.sender;
+    }
+  }
+              </code></pre>
+            </div>
+          </section>
+          <section>
+            <aside class="notes">
+              <h1>XXXXXX</h1>
+            </aside>
+            <h3><a href="https://ethernaut.zeppelin.solutions/level/0x234094aac85628444a82dae0396c680974260be7">level 1 -- fallback (continued)</a></h3>
+            <div class="jjlcol2">
+              <p data-markdown>
+                Notice this contract (code on previous slide) imports *Ownable.sol* (code on this slide).
+
+                The source for *Ownable.sol* comes from [another Zeppelin repo](https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-solidity/ad12381549c4c0711c2f3310e9fb1f65d51c299c/contracts/ownership/Ownable.sol).
+
+                Put this source file into [Remix](https://remix.ethereum.org/) as well.
+
+                To be continued...
+              </p>
+            </div>
+            <div class="jjrcol2">
+              <pre class="javascript"><code class="jjcode">
+  // Ownable.sol
+
+  pragma solidity ^0.4.18;
+
+
+  /**
+   * @title Ownable
+   * @dev The Ownable contract has an owner address, and provides basic authorization control
+   * functions, this simplifies the implementation of "user permissions".
+   */
+  contract Ownable {
+    address public owner;
+
+
+    event OwnershipRenounced(address indexed previousOwner);
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+
+    /**
+     * @dev The Ownable constructor sets the original `owner` of the contract to the sender
+     * account.
+     */
+    function constructor() public {
+      owner = msg.sender;
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+      require(msg.sender == owner);
+      _;
+    }
+
+    /**
+     * @dev Allows the current owner to transfer control of the contract to a newOwner.
+     * @param newOwner The address to transfer ownership to.
+     */
+    function transferOwnership(address newOwner) public onlyOwner {
+      require(newOwner != address(0));
+      emit OwnershipTransferred(owner, newOwner);
+      owner = newOwner;
+    }
+
+    /**
+     * @dev Allows the current owner to relinquish control of the contract.
+     */
+    function renounceOwnership() public onlyOwner {
+      emit OwnershipRenounced(owner);
+      owner = address(0);
+    }
+  }
+              </code></pre>
+            </div>
+          </section>
+          <section>
+            <aside class="notes">
+              <h1>XXXXXX</h1>
+            </aside>
+            <h3><a href="https://ethernaut.zeppelin.solutions/level/0x234094aac85628444a82dae0396c680974260be7">level 1 -- fallback (continued)</a></h3>
+            <div class="jjlcol2">
+              <p data-markdown>
+                #### Solution Notes
+
+                Check owner in the contract, notice that it's not your address (use MetaMask)
+
+                Attempting to "Submit instance" will produce "Oops! Looks like you haven't cracked this level just yet" in the browser console.
+
+                To crack simply contribute 1 wei.
+
+                Call (fallback) payable with 1 wei (verify new owner).
+
+                Call 'withdraw' to drain contract.
+              </p>
+            </div>
+            <div class="jjrcol2">
+              <pre class="javascript"><code class="jjcode">
+  // Fallback.sol
+
+  pragma solidity ^0.4.18;
+
+  import './Ownable.sol';
+
+  contract Fallback is Ownable {
+
+    mapping(address => uint) public contributions;
+
+    function Fallback() public {
+      contributions[msg.sender] = 1000 * (1 ether);
+    }
+
+    function contribute() public payable {
+      require(msg.value < 0.001 ether);
+      contributions[msg.sender] += msg.value;
+      if(contributions[msg.sender] > contributions[owner]) {
+        owner = msg.sender;
+      }
+    }
+
+    function getContribution() public view returns (uint) {
+      return contributions[msg.sender];
+    }
+
+    function withdraw() public onlyOwner {
+      owner.transfer(this.balance);
+    }
+
+    function() payable public {
+      require(msg.value > 0 && contributions[msg.sender] > 0);
+      owner = msg.sender;
+    }
+  }
+              </code></pre>
+            </div>
+          </section>
+          <section>
+            <aside class="notes">
+              <h1>XXXXXX</h1>
+            </aside>
+            <h3><a href="https://ethernaut.zeppelin.solutions/level/0x220beee334f1c1f8078352d88bcc4e6165b792f6">level 2 - fallout</a></h3>
+            <div class="jjlcol2">
+              <p data-markdown>
+                Read through the [level instructions](https://ethernaut.zeppelin.solutions/level/0x220beee334f1c1f8078352d88bcc4e6165b792f6) and setup your [Remix](https://remix.ethereum.org/) with the source code and level instance contract address.
+
+                For this level reuse the *Ownable.sol* from the previous level: simply keep it in your [Remix](https://remix.ethereum.org/).
+
+                #### Solution Notes
+
+                Recognize that the constructor is misnamed, so contract used a default constructor on creation.
+
+                Hijack the contract by calling constructor as a normal function call, and you as the sender.
+
+                After submiting your instance, read the story of *Rubixi*.
+              </p>
+            </div>
+            <div class="jjrcol2">
+              <pre class="javascript"><code class="jjcode">
+  pragma solidity ^0.4.18;
+
+  import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
+
+  contract Fallout is Ownable {
+
+    mapping (address => uint) allocations;
+
+    /* constructor */
+    function Fal1out() public payable {
+      owner = msg.sender;
+      allocations[owner] = msg.value;
+    }
+
+    function allocate() public payable {
+      allocations[msg.sender] += msg.value;
+    }
+
+    function sendAllocation(address allocator) public {
+      require(allocations[allocator] > 0);
+      allocator.transfer(allocations[allocator]);
+    }
+
+    function collectAllocations() public onlyOwner {
+      msg.sender.transfer(this.balance);
+    }
+
+    function allocatorBalance(address allocator) public view returns (uint) {
+      return allocations[allocator];
+    }
+  }
+              </code></pre>
+            </div>
+          </section>
+          <section>
+            <aside class="notes">
+              <h1>test out in local EVM because ropsten would take 10 minutes all together</h1>
+            </aside>
+            <h3><a href="https://ethernaut.zeppelin.solutions/level/0xd340de695bbc39e72df800dfde78a20d2ed94035">level 3 -- Coin Flip</a></h3>
+            <div class="jjlcol2">
+              <p data-markdown>
+                Read through the [level instructions](https://ethernaut.zeppelin.solutions/level/0xd340de695bbc39e72df800dfde78a20d2ed94035) and setup your [Remix](https://remix.ethereum.org/) with the source code and level instance contract address.
+
+                #### Solution Notes
+
+                'lastHash' is hash of previous block
+
+                The 'revert' is there to prevent multiple transactions on the same block of a chain, without which prediction of 10 coin tosses would be trivial.
+
+                'coinFlip' is not random, it's set to a division of previous block value by some number.  The 'flip' result will be true if previous block value is bigger than 'FACTOR', else false.
+
+                As such we can look at the blockchain and determine the "random" coin flip.
+              </p>
+            </div>
+            <div class="jjrcol2">
+              <pre class="javascript"><code class="jjcode">
+  pragma solidity ^0.4.18;
+
+  contract CoinFlip {
+    uint256 public consecutiveWins;
+    uint256 lastHash;
+    uint256 FACTOR = 57896044618658097711785492504343953926634992332820282019728792003956564819968;
+
+    function CoinFlip() public {
+      consecutiveWins = 0;
+    }
+
+    function flip(bool _guess) public returns (bool) {
+      uint256 blockValue = uint256(block.blockhash(block.number-1));
+
+      if (lastHash == blockValue) {
+        revert();
+      }
+
+      lastHash = blockValue;
+      uint256 coinFlip = uint256(uint256(blockValue) / FACTOR);
+      bool side = coinFlip == 1 ? true : false;
+
+      if (side == _guess) {
+        consecutiveWins++;
+        return true;
+      } else {
+        consecutiveWins = 0;
+        return false;
+      }
+    }
+  }
+              </code></pre>
+            </div>
+          </section>
+          <section>
+            <aside class="notes">
+              <h1>XXXXXX</h1>
+            </aside>
+            <h3><a href="https://ethernaut.zeppelin.solutions/level/0xd340de695bbc39e72df800dfde78a20d2ed94035">level 3 -- Coin Flip (continued)</a></h3>
+            <div class="jjlcol2">
+              <p data-markdown>
+                #### Solution Notes (Continued)
+
+                One solution would be to [look at the blockchain](https://ropsten.etherscan.io/) for a previous block hash, then calculate the coin flip value in the browser's console:
+
+                ```
+                var f = (bv) => bv > 57896044618658097711785492504343953926634992332820282019728792003956564819968
+                ```
+
+                We would need to do this 10 times.  This is very error prone; easier to write another smart contract to do this.
+
+                Paste the *Solve* contract after the *CoinFlip* contract into [Remix](https://remix.ethereum.org/).
+
+                Deploy *Solve* and run 10 times.  Note that most of it is a copy/paste from the *CoinFlip* contract.
+              </p>
+            </div>
+            <div class="jjrcol2">
+              <pre class="javascript"><code class="jjcode">
+  contract Solve {
+      uint256 FACTOR = 57896044618658097711785492504343953926634992332820282019728792003956564819968;
+      CoinFlip public target;
+     
+      function Solve() public {
+          target = CoinFlip(  ADDRESS );
+      }
+     
+      function flip() public {
+          uint256 blockValue = uint256(block.blockhash(block.number-1));
+          uint256 coinFlip = uint256(uint256(blockValue) / FACTOR);
+          bool side = coinFlip == 1 ? true : false;
+          target.flip(side);
+      }
+  }
+
+              </code></pre>
+            </div>
+          </section>
+          <section>
+            <aside class="notes">
+              <h1>XXXXXX</h1>
+            </aside>
+            <h3><a href="https://ethernaut.zeppelin.solutions/level/0xd340de695bbc39e72df800dfde78a20d2ed94035">level 3 -- Coin Flip (continued)</a></h3>
+            <p data-markdown>
+              #### A nugget from Zepplin
+
+              Generating random numbers in solidity can be tricky. There currently isn't a native way to generate them, and everything you use in smart contracts is publicly visible, including the local variables and state variables marked as private. Miners also have control over things like blockhashes, timestamps, and whether to include certain transactions - which allows them to bias these values in their favor. Some options include using Bitcoin block headers (verified through BTC Relay), RANDAO, or Oraclize).
+            </p>
+          </section>
+          <section>
+            <aside class="notes">
+              <h1>XXXXXX</h1>
+            </aside>
+            <h3><a href="https://ethernaut.zeppelin.solutions/level/0x6b7b4a5260b67c1ee9196a42dd1ed8633231ba0a">level 4 -- Telephone</a></h3>
+            <div class="jjlcol2">
+              <p data-markdown>
+                Read through the [level instructions](https://ethernaut.zeppelin.solutions/level/0x6b7b4a5260b67c1ee9196a42dd1ed8633231ba0a) and setup your [Remix](https://remix.ethereum.org/) with the source code and level instance contract address.
+
+                #### Solution Notes
+
+                Note that this is the same problem as *gateOne* of *theCyber* gate keeper, just call from another contract.
+
+                Notice the *Thief* contract in the code sample to do just that.
+              </p>
+            </div>
+            <div class="jjrcol2">
+              <pre class="javascript"><code class="jjcode">
+  pragma solidity ^0.4.18;
+
+  contract Telephone {
+
+    address public owner;
+
+    function Telephone() public {
+      owner = msg.sender;
+    }
+
+    function changeOwner(address _owner) public {
+      if (tx.origin != msg.sender) {
+        owner = _owner;
+      }
+    }
+  }
+
+  contract Thief {
+      Telephone public target;
+     
+      function steal() public {
+          target = Telephone( TELEPHONEADDRESS );
+          target.changeOwner( MYADDRESS );
+      }
+  }
+              </code></pre>
+            </div>
+          </section>
+          <section>
+            <aside class="notes">
+              <h1>XXXXXX</h1>
+            </aside>
+            <h3><a href="https://ethernaut.zeppelin.solutions/level/0x6545df87f57d21cb096a0bfcc53a70464d062512">level 5 -- Token</a></h3>
+            <div class="jjlcol2">
+              <p data-markdown>
+                Read through the [level instructions](https://ethernaut.zeppelin.solutions/level/0x6545df87f57d21cb096a0bfcc53a70464d062512) and setup your [Remix](https://remix.ethereum.org/) with the source code and level instance contract address.
+
+                To spice things up we'll use a tool to help identify vulnerabilities in this contract.  The idea to do this came from [this article](https://hackernoon.com/scanning-ethereum-smart-contracts-for-vulnerabilities-b5caefd995df).
+
+                [Mythril](https://github.com/ConsenSys/mythril) is an automated secutiry analyzer.
+
+                Let's use [Mythril](https://github.com/ConsenSys/mythril) to help find a problem in this contract.
+              </p>
+            </div>
+            <div class="jjrcol2">
+              <pre class="javascript"><code class="jjcode">
+  pragma solidity ^0.4.18;
+
+  contract Token {
+
+    mapping(address => uint) balances;
+    uint public totalSupply;
+
+    function Token(uint _initialSupply) public {
+      balances[msg.sender] = totalSupply = _initialSupply;
+    }
+
+    function transfer(address _to, uint _value) public returns (bool) {
+      require(balances[msg.sender] - _value >= 0);
+      balances[msg.sender] -= _value;
+      balances[_to] += _value;
+      return true;
+    }
+
+    function balanceOf(address _owner) public view returns (uint balance) {
+      return balances[_owner];
+    }
+  }
+              </code></pre>
+            </div>
+          </section>
+          <section>
+            <aside class="notes">
+              <h1>XXXXXX</h1>
+            </aside>
+            <h3><a href="https://ethernaut.zeppelin.solutions/level/0x6545df87f57d21cb096a0bfcc53a70464d062512">level 5 -- Token (continued)</a></h3>
+            <div class="jjlcol2">
+              <p data-markdown>
+                #### Solution Notes
+
+                Get a [Mythril](https://github.com/ConsenSys/mythril) [Docker](https://www.docker.com/) image:
+
+                ```
+                docker pull blackwatertepes/mythril
+                ```
+
+                Test run the [Docker](https://www.docker.com/) image:
+
+                ```
+                docker pull blackwatertepes/mythril myth
+                ```
+
+                Run the [Mythril](https://github.com/ConsenSys/mythril) test against your deployed contract:  substitute 'ADDRESS' with your level instance contract address:
+
+                ```
+                docker run --rm -it blackwatertepes/mythril myth -x -a ADDRESS --infura-ropsten
+                ```
+
+                You get an output:
+
+                ```
+                A possible integer underflow exists in the function _function_0xa9059cbb.
+                ```
+
+                Look for an underflow, it's on line 13.
+
+                Notice that we're dealing with unsigned integers, so it underflows.
+
+              </p>
+            </div>
+            <div class="jjrcol2">
+              <pre class="javascript"><code class="jjcode">
+  pragma solidity ^0.4.18;
+
+  contract Token {
+
+    mapping(address => uint) balances;
+    uint public totalSupply;
+
+    function Token(uint _initialSupply) public {
+      balances[msg.sender] = totalSupply = _initialSupply;
+    }
+
+    function transfer(address _to, uint _value) public returns (bool) {
+      require(balances[msg.sender] - _value >= 0);
+      balances[msg.sender] -= _value;
+      balances[_to] += _value;
+      return true;
+    }
+
+    function balanceOf(address _owner) public view returns (uint balance) {
+      return balances[_owner];
+    }
+  }
+              </code></pre>
+            </div>
+          </section>
+          <section>
+            <aside class="notes">
+              <h1>XXXXXX</h1>
+            </aside>
+            <h3><a href="https://ethernaut.zeppelin.solutions/level/0x6545df87f57d21cb096a0bfcc53a70464d062512">level 5 -- Token (continued)</a></h3>
+            <div class="jjlcol2">
+              <p data-markdown>
+                #### Solution Notes (continued)
+
+                To crack this contract just pass a large value into '_value', but ensure a different address is setup for '_to' than the 'msg.sender'; otherwise line 14 and line 15 cancel eachother out by underflowing then overflowing back to the same value.
+              </p>
+            </div>
+            <div class="jjrcol2">
+              <pre class="javascript"><code class="jjcode">
+  pragma solidity ^0.4.18;
+
+  contract Token {
+
+    mapping(address => uint) balances;
+    uint public totalSupply;
+
+    function Token(uint _initialSupply) public {
+      balances[msg.sender] = totalSupply = _initialSupply;
+    }
+
+    function transfer(address _to, uint _value) public returns (bool) {
+      require(balances[msg.sender] - _value >= 0);
+      balances[msg.sender] -= _value;
+      balances[_to] += _value;
+      return true;
+    }
+
+    function balanceOf(address _owner) public view returns (uint balance) {
+      return balances[_owner];
+    }
+  }
+              </code></pre>
+            </div>
           </section>
         </section>
       </div>
