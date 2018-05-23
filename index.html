@@ -133,7 +133,7 @@
             <h3>Code analysis and smart contracts</h3>
             <div class="jjlcol2">
               <p data-markdown>
-                * Web 2.0 app developers often focus on tightening the loop between bug identification and fixes.
+                * Web 2.0 app developers often focus on tightening the loop between bug identification and fixes -- in production.
               </p>
             </div>
             <div class="jjlcol2">
@@ -2455,6 +2455,144 @@
               </code></pre>
             </div>
           </section>
+        </section>
+        <section>
+          <section>
+          	<aside class="notes">
+          		<h1>XXXXXX</h1>
+          	</aside>
+          	<h3>Honeypots</h3>
+          		<p data-markdown>
+                #### "hack the hackers by creating seemingly vulnerable smart contracts"
+
+                [https://medium.com/@gerhard.wagner/the-phenomena-of-smart-contract-honeypots-755c1f943f7b](https://medium.com/@gerhard.wagner/the-phenomena-of-smart-contract-honeypots-755c1f943f7b)
+          		</p>
+          </section>
+          <section>
+          	<aside class="notes">
+          		<h1>XXXXXX</h1>
+          	</aside>
+          	<h3>Honeypot 1:  MultiplicatorX3</h3>
+          	<div class="jjlcol2">
+          		<p data-markdown>
+                #### The Honeypot
+
+                `multiplicate` looks vulnerable.
+
+                Looks like as long as we pass in more Eth in the message than the current contract balance, we can transfer the balance and our passed in Eth to any address.
+
+                #### The Trap
+
+                This is a trap since `this.balance` is updated before the `multiplicate` function starts executing.
+
+                Hence `if(msg.value>=this.balance)` is never `true` unless `this.balance` is initially zero.
+
+          		</p>
+          	</div>
+          	<div class="jjlcol2">
+          		<img data-src="resources/honeypot1.png">
+          	</div>
+          </section>
+          <section>
+          	<aside class="notes">
+          		<h1>Click through the 9 transactions and 3 internal transactions, never called, so good to SetPass then GetGift</h1>
+          	</aside>
+          	<h3>Honeyport 2: Gift_1_ETH</h3>
+          	<div class="jjlcol2">
+          		<p data-markdown>
+                #### The Honeypot
+
+                Looks like as long as no one else ever called `PassHasBeenSet`, one should be able to set a new passphrase with `SetPass` (with a `msg.value` > 1 Eth) and then `GetGift`.
+
+                Looking at [transaction log for this contract](https://etherscan.io/address/0x75041597d8f6e869092d78b9814b7bcdeeb393b4) we see that `PassHasBeenSet` was never called by an external address.
+
+                Looking at [internal transactions for this contract](https://etherscan.io/address/0x75041597d8f6e869092d78b9814b7bcdeeb393b4#internaltx) we see that `PassHasBeenSet` was never called from another contract.
+          		</p>
+          	</div>
+          	<div class="jjlcol2">
+              <img data-src="resources/honeypot2.png">
+          	</div>
+          </section>
+          <section>
+          	<aside class="notes">
+          	</aside>
+          	<h3>Honeyport 2: Gift_1_ETH (continued)</h3>
+          	<div class="jjlcol2">
+          		<p data-markdown>
+                #### The Trap
+
+                The conclusion that `PassHasBeenSet` was never called is wrong.
+
+                A transaction may perform other message calls and transfer value from within the transacted contract; these additional calls are not transactions.  Blockchain explorers sometimes label these as "internal transactions". These (internal) value transfers are not published on the blockchain.
+
+                If `PassHasBeenSet` has been called from another contract with `msg.value == 0`, it will not be listed as a transaction nor internal transaction.
+          		</p>
+          	</div>
+          	<div class="jjlcol2">
+              <img data-src="resources/honeypot2.png">
+          	</div>
+          </section>
+          <section>
+          	<aside class="notes">
+          	</aside>
+          	<h3>Honeyport 2: Gift_1_ETH (continued)</h3>
+          	<div class="jjlcol2">
+          		<p data-markdown>
+                #### The Evade
+
+                Our recourse is to check the value of `passHasBeenSet`, check the data since can't rely on message call history.  It's not trivial to check if `passHasBeenSet` is `true` since it's not public.
+
+                We can use [Mythril](https://github.com/ConsenSys/mythril).
+
+                ```
+                docker run --rm -it blackwatertepes/mythril myth --storage 0,10 -a 0x75041597d8f6E869092d78b9814B7bcdeeb393b4 --infura-mainnet
+                ```
+
+                Observe that the first 32 bytes of storage--the `passHasBeenSet` variable--show a '1', therefore true.  The second 32 bytes show the `hashPass`.
+
+                ```
+                0x0: 0x0000000000000000000000000000000000000000000000000000000000000001
+                0x1: 0x262a262b32c44fdf8b75e8180c6bec05873b60a425126bb77e1059b01f6d3513
+                0x2: 0x0000000000000000000000000000000000000000000000000000000000000000
+                ...
+                ```
+          		</p>
+          	</div>
+          	<div class="jjlcol2">
+              <img data-src="resources/honeypot2.png">
+          	</div>
+          </section>
+        </section>
+        <section>
+        	<aside class="notes">
+        		<h1>XXXXXX</h1>
+        	</aside>
+        	<h3>Audits</h3>
+      		<p data-markdown>
+            The smart contract audit industry is pegged to be an exicitng endeavor.
+          </p>
+          <div class="jjlcol2">
+            <p data-markdown>
+              [How to Audit a Smart Contract? – A Guide](https://www.devteam.space/blog/how-to-audit-a-smart-contract-a-guide)
+
+              "..ensure that there are no security issues and that all contracts are fully performance optimized."
+
+              "..smart contract audits are best performed by outside parties..to ensure that the code is reviewed as thoroughly as possible."
+            </p>
+          </div>
+          <div class="jjlrol2">
+            <p data-markdown>
+              [The ultimate guide to audit a Smart Contract + Most dangerous attacks in Solidity](https://medium.com/@merunasgrincalaitis/how-to-audit-a-smart-contract-most-dangerous-attacks-in-solidity-ae402a7e7868)
+
+              "Keep learning and improving your knowledge about contract security, best practices and new functionalities."
+      		  </p>
+          </div>
+        </section>
+        <section>
+        	<aside class="notes">
+        		<h1>XXXXXX</h1>
+        	</aside>
+        	<h3>Thank you!</h3>
         </section>
       </div>
     </div>
